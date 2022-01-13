@@ -1,0 +1,7 @@
+toyota - 85
+audi - 50
+ford - 70
+volkswagen - 79
+skoda - 68
+mercedes - 59
+hyundi - 83

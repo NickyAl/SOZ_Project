@@ -7,7 +7,7 @@
 #include "KNN.h"
 #include <chrono>
 
-double PERCENTAGE_FOR_TRAINING = 0.7; //by testing we decided that 80% and k=5 is the best combination and it is used when we input custom patients
+double PERCENTAGE_FOR_TRAINING = 0.7;
 size_t K = 3;
 
 //already a number
@@ -40,12 +40,30 @@ std::vector<std::string> getCLasses(std::vector<std::vector<std::string>> rawDat
 //pre-processes the raw data so it can be used for kNN
 std::vector<std::vector<double>> preProcessData(std::vector<std::vector<std::string>> rawData);
 
+//input brand
+std::string brandChoiceMenu();
+
+//maNuAl -> MANUAL
+void allToCaps(std::string& str);
+
+//custom sample input
+std::vector<std::vector<double>> enterSample();
+
+//choose to find out a custom sample's model or test the knn algorithm accuracy
+bool chooseMode();
+
 int main()
 {
+    //choose the car brand
+    std::string brandFileName = brandChoiceMenu();
+
+    //choose to test the knn accuracy or use the algorithm to find out a custom sample's model
+    bool isInTestMode = chooseMode();
+
     auto frame_start = std::chrono::high_resolution_clock::now(); //starts a timer
 
     //open csv file containing the data set
-    std::ifstream dataSetFile("hyundi.csv");
+    std::ifstream dataSetFile(brandFileName);
 
     if (!dataSetFile.is_open())
     {
@@ -88,26 +106,55 @@ int main()
     //start kNN
     KNN model(K);
     model.fit(XTrain, yTrain);
-    std::vector<std::string> yPred = model.predict(XTest);
 
-    size_t correct = 0;
-    size_t sizeYPred = yPred.size();
-   
-    for (size_t i = 0; i < sizeYPred; i++)
+    if (isInTestMode)
     {
-        if (yPred[i] == yTest[i])
+        std::cout << "\nPlease wait a few second...\n\n";
+        std::vector<std::string> yPred = model.predict(XTest);
+
+        size_t correct = 0;
+        size_t sizeYPred = yPred.size();
+
+        for (size_t i = 0; i < sizeYPred; i++)
         {
-            correct++;
+            if (yPred[i] == yTest[i])
+            {
+                correct++;
+            }
         }
+
+        std::cout << correct << " out of " << sizeYPred << " are correct\n";
+        std::cout << "Success rate: " << (double(correct) / double(sizeYPred)) * 100 << "%\n";
+
+        auto frame_end = std::chrono::high_resolution_clock::now(); //end of timer
+
+        std::chrono::duration<float> duration = frame_end - frame_start;
+        std::cout << "Run time: " << duration.count() << " seconds\n\n";
+    }
+    else
+    {
+        std::cout << "\nCar model is: " << model.predict(enterSample())[0] << "\n\n";
     }
 
-    std::cout << correct << " out of " << sizeYPred << " are correct\n";
-    std::cout << "Success rate: " << (double(correct) / double(sizeYPred)) * 100 << "%\n";
+    //Restart the program or end it
+    std::cout << "Choose:\n"
+        << "1. exit\n"
+        << "2. run\n"
+        << "Enter the number of your choise\n";
 
-    auto frame_end = std::chrono::high_resolution_clock::now(); //end of timer
+    int exitOrRun = 0;
 
-    std::chrono::duration<float> duration = frame_end - frame_start;
-    std::cout << "Run time:" << duration.count() << '\n';
+    while (exitOrRun < 1 || exitOrRun > 2)
+    {
+        std::cin >> exitOrRun;
+        if (exitOrRun < 1 || exitOrRun > 2)
+            std::cout << "You must enter a number between 1 and 2 corresponding to your choice!";
+    }
+
+    if (exitOrRun == 2)
+    {
+        main();
+    }
 }
 
 void trainTestSplit(std::vector<std::vector<double>>& X, std::vector<std::string>& y,
@@ -310,4 +357,175 @@ std::vector<std::vector<double>> preProcessData(std::vector<std::vector<std::str
     }
 
     return data;
+}
+
+std::string brandChoiceMenu()
+{
+    std::cout << "Choose a brand:\n"
+        << "1. toyota\n"
+        << "2. ford\n"
+        << "3. volkswagen\n"
+        << "4. skoda\n"
+        << "5. hyundi\n"
+        << "Enter the number of the brand you want choose\n";
+
+    int brandChoice = 0;
+
+    while (brandChoice < 1 || brandChoice > 5)
+    {
+        std::cin >> brandChoice;
+        if (brandChoice < 1 || brandChoice > 5)
+            std::cout << "You must enter a number between 1 and 5 corresponding to the brand you want to choose!";
+    }
+
+    switch (brandChoice)
+    {
+    case 1:
+        return "toyota.csv";
+    case 2:
+        return "ford.csv";
+    case 3:
+        return "volkswagen.csv";
+    case 4:
+        return "skoda.csv";
+    case 5:
+        return "hyundi.csv";
+    default:
+        return "toyota.csv";
+    }
+
+}
+
+void allToCaps(std::string& str)
+{
+    for (std::string::iterator it = str.begin(); it != str.end(); it++)
+    {
+        if (*it <= 'z' && *it >= 'a')
+            *it += 'A' - 'a';
+    }
+}
+
+std::vector<std::vector<double>> enterSample()
+{
+    std::vector<std::vector<double>> result;
+    std::vector<double> sample;
+    double value;
+    std::string textValue;
+
+    //year
+    std::cout << "Year = ";
+    std::cin >> value;
+    sample.push_back(value);
+
+    //price
+    std::cout << "Price = ";
+    std::cin >> value;
+    sample.push_back(value);
+
+    //transmission
+    std::cout << "Transmission type: ";
+    std::cin >> textValue;
+    allToCaps(textValue);
+
+    if (textValue == "MANUAL")
+    {
+        sample.push_back(1);
+        sample.push_back(0);
+        sample.push_back(0);
+    }
+    else if (textValue == "AUTOMATIC")
+    {
+        sample.push_back(0);
+        sample.push_back(1);
+        sample.push_back(0);
+    }
+    else //if Semi-Auto
+    {
+        sample.push_back(0);
+        sample.push_back(0);
+        sample.push_back(1);
+    }
+
+    //mileage
+    std::cout << "Mileage = ";
+    std::cin >> value;
+    sample.push_back(value);
+
+    //fuelType
+    std::cout << "Fuel type: ";
+    std::cin >> textValue;
+    allToCaps(textValue);
+
+    if (textValue == "Petrol")
+    {
+        sample.push_back(1);
+        sample.push_back(0);
+        sample.push_back(0);
+        sample.push_back(0);
+    }
+    else if (textValue == "Diesel")
+    {
+        sample.push_back(0);
+        sample.push_back(1);
+        sample.push_back(0);
+        sample.push_back(0);
+    }
+    else if (textValue == "Hybrid")
+    {
+        sample.push_back(0);
+        sample.push_back(0);
+        sample.push_back(1);
+        sample.push_back(0);
+    }
+    else //Other
+    {
+        sample.push_back(0);
+        sample.push_back(0);
+        sample.push_back(0);
+        sample.push_back(1);
+    }
+
+    //tax
+    std::cout << "Tax = ";
+    std::cin >> value;
+    sample.push_back(value);
+
+    //mpg
+    std::cout << "Miles-per-gallon = ";
+    std::cin >> value;
+    sample.push_back(value);
+
+    //engineSize
+    std::cout << "Engine size: ";
+    std::cin >> value;
+    sample.push_back(value);
+
+    result.push_back(sample);
+
+    return result;
+}
+
+bool chooseMode()
+{
+    std::cout << "Choose mode:\n"
+        << "1. test algorithm accuracy\n"
+        << "2. find car model\n"
+        << "Enter the number of the brand you want choose\n";
+
+    int modeChoice = 0;
+
+    while (modeChoice < 1 || modeChoice > 2)
+    {
+        std::cin >> modeChoice;
+        if (modeChoice < 1 || modeChoice > 2)
+            std::cout << "You must enter a number between 1 and 2 corresponding to the mode you want to choose!";
+    }
+
+    switch (modeChoice)
+    {
+    case 1:
+        return true;
+    case 2:
+        return false;
+    }
 }

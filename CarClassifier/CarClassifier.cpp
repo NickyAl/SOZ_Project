@@ -19,6 +19,14 @@ const size_t TAX_POSITION = 6;
 const size_t MPG_POSITION = 7;
 const size_t ENGINE_SIZE_POSITION = 8;
 
+//numbers after new columns
+const size_t PROCESSED_YEAR_POSITION = YEAR_POSITION - 1;
+const size_t PROCESSED_PRICE_POSITION = PRICE_POSITION - 1;
+const size_t PROCESSED_MILEAGE_POSITION = MILEAGE_POSITION + 1;
+const size_t PROCESSED_TAX_POSITION = TAX_POSITION + 4;
+const size_t PROCESSED_MPG_POSITION = MPG_POSITION + 4;
+const size_t PROCESSED_ENGINE_SIZE_POSITION = ENGINE_SIZE_POSITION + 4;
+
 //needs to be processed to a number
 const size_t TRANSMISSION_POSITION = 3;
 
@@ -80,13 +88,6 @@ int main()
     std::vector<std::vector<double>> data = preProcessData(rawData);
 
     //normalize the data
-    const size_t PROCESSED_YEAR_POSITION = YEAR_POSITION - 1;
-    const size_t PROCESSED_PRICE_POSITION = PRICE_POSITION - 1;
-    const size_t PROCESSED_MILEAGE_POSITION = MILEAGE_POSITION + 1;
-    const size_t PROCESSED_TAX_POSITION = TAX_POSITION + 4;
-    const size_t PROCESSED_MPG_POSITION = MPG_POSITION + 4;
-    const size_t PROCESSED_ENGINE_SIZE_POSITION = ENGINE_SIZE_POSITION + 4;
-
     normalize(data, PROCESSED_YEAR_POSITION);
     normalize(data, PROCESSED_PRICE_POSITION);
     normalize(data, PROCESSED_MILEAGE_POSITION);
@@ -148,7 +149,7 @@ int main()
     {
         std::cin >> exitOrRun;
         if (exitOrRun < 1 || exitOrRun > 2)
-            std::cout << "You must enter a number between 1 and 2 corresponding to your choice!";
+            std::cout << "You must enter a number between 1 and 2 corresponding to your choice!\n";
     }
 
     if (exitOrRun == 2)
@@ -375,7 +376,7 @@ std::string brandChoiceMenu()
     {
         std::cin >> brandChoice;
         if (brandChoice < 1 || brandChoice > 5)
-            std::cout << "You must enter a number between 1 and 5 corresponding to the brand you want to choose!";
+            std::cout << "You must enter a number between 1 and 5 corresponding to the brand you want to choose!\n";
     }
 
     switch (brandChoice)
@@ -502,6 +503,13 @@ std::vector<std::vector<double>> enterSample()
 
     result.push_back(sample);
 
+    normalize(result, PROCESSED_YEAR_POSITION);
+    normalize(result, PROCESSED_PRICE_POSITION);
+    normalize(result, PROCESSED_MILEAGE_POSITION);
+    normalize(result, PROCESSED_TAX_POSITION);
+    normalize(result, PROCESSED_MPG_POSITION);
+    normalize(result, PROCESSED_ENGINE_SIZE_POSITION);
+
     return result;
 }
 
@@ -518,7 +526,7 @@ bool chooseMode()
     {
         std::cin >> modeChoice;
         if (modeChoice < 1 || modeChoice > 2)
-            std::cout << "You must enter a number between 1 and 2 corresponding to the mode you want to choose!";
+            std::cout << "You must enter a number between 1 and 2 corresponding to the mode you want to choose!\n";
     }
 
     switch (modeChoice)

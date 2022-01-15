@@ -1,3 +1,3 @@
 ﻿  CarClassifier.cpp
-F:\FMI 3 kurs 1 sem\soz\project\CarClassifier\CarClassifier\CarClassifier.cpp(212): warning C4715: 'chooseMode': not all control paths return a value
+F:\FMI 3 kurs 1 sem\soz\project\CarClassifier\CarClassifier\CarClassifier.cpp(539): warning C4715: 'chooseMode': not all control paths return a value
   CarClassifier.vcxproj -> F:\FMI 3 kurs 1 sem\soz\project\CarClassifier\Debug\CarClassifier.exe
